@@ -30,8 +30,3 @@ func ConnectDB() *mongo.Database {
 
 	return database
 }
-
-func GetCollection(database *mongo.Database, collectionName string) *mongo.Collection {
-	collection := ConnectDB().Collection(collectionName)
-	return collection
-}
