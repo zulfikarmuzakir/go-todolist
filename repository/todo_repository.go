@@ -4,6 +4,8 @@ import "go-todolist/model"
 
 type TodoRepository interface {
 	Insert(todo model.Todo)
+	Update(id string, request model.Todo)
+	Find(id string) model.Todo
 	GetAll() (todos []model.Todo)
-	Delete(param string)
+	Delete(id string)
 }

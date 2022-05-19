@@ -19,31 +19,17 @@ func NewTodoRepository(database *mongo.Database) TodoRepository {
 	}
 }
 
-func (repository *TodoRepositoryImpl) Insert(todo model.Todo) {
-	ctx, cancel := config.NewMongoContext()
-	defer cancel()
-
-	_, err := repository.Collection.InsertOne(ctx, bson.M{
-		"_id":         todo.Id,
-		"name":        todo.Name,
-		"description": todo.Description,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func (repository *TodoRepositoryImpl) GetAll() (todos []model.Todo) {
 	ctx, cancel := config.NewMongoContext()
 	defer cancel()
 
-	cursor, err := repository.Collection.Find(ctx, bson.M{})
+	result, err := repository.Collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	var documents []bson.M
-	err = cursor.All(ctx, &documents)
+	err = result.All(ctx, &documents)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -59,11 +45,49 @@ func (repository *TodoRepositoryImpl) GetAll() (todos []model.Todo) {
 	return todos
 }
 
-func (repository *TodoRepositoryImpl) Delete(param string) {
+func (repository *TodoRepositoryImpl) Find(id string) model.Todo {
 	ctx, cancel := config.NewMongoContext()
 	defer cancel()
 
-	_, err := repository.Collection.DeleteOne(ctx, bson.M{"_id": param})
+	var todo model.Todo
+	err := repository.Collection.FindOne(ctx, bson.M{"_id": id}).Decode(&todo)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return todo
+}
+
+func (repository *TodoRepositoryImpl) Insert(todo model.Todo) {
+	ctx, cancel := config.NewMongoContext()
+	defer cancel()
+
+	_, err := repository.Collection.InsertOne(ctx, bson.M{
+		"_id":         todo.Id,
+		"name":        todo.Name,
+		"description": todo.Description,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (repository *TodoRepositoryImpl) Update(id string, request model.Todo) {
+	ctx, cancel := config.NewMongoContext()
+	defer cancel()
+
+	update := bson.M{"name": request.Name, "description": request.Description}
+	_, err := repository.Collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": update})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func (repository *TodoRepositoryImpl) Delete(id string) {
+	ctx, cancel := config.NewMongoContext()
+	defer cancel()
+
+	_, err := repository.Collection.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
