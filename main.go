@@ -25,9 +25,9 @@ func main() {
 	})
 
 	app.Get("/todos", todoController.GetAll)
-	app.Post("/todo", todoController.Create)
-	app.Put("/todo/:id", todoController.Update)
-	app.Delete("/todo/:id", todoController.Delete)
+	app.Post("/todos", todoController.Create)
+	app.Put("/todos/:id", todoController.Update)
+	app.Delete("/todos/:id", todoController.Delete)
 
 	err := app.Listen(port)
 	if err != nil {
